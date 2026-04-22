@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import confetti from "canvas-confetti";
 
 function getPlant(streak) {
   if (streak === 0) return "🪨";
@@ -84,13 +83,13 @@ function App() {
   });
 
   const [inputValue, setInputValue] = useState("");
+  const [celebrating, setCelebrating] = useState(false);
   const celebrated = useRef(new Set());
 
   useEffect(() => {
     localStorage.setItem("habits", JSON.stringify(habits));
   }, [habits]);
 
-  // Derived state — no extra useState needed!
   const totalScore = habits.reduce((sum, habit) => sum + habit.streak, 0);
 
   function checkIn(id) {
@@ -98,14 +97,10 @@ function App() {
       if (habit.id !== id) return habit;
       const newStreak = habit.streak + 1;
 
-      // 🎊 Confetti at 10 streaks!
       if (newStreak === 10 && !celebrated.current.has(id)) {
         celebrated.current.add(id);
-        confetti({
-          particleCount: 150,
-          spread: 70,
-          origin: { y: 0.6 },
-        });
+        setCelebrating(true);
+        setTimeout(() => setCelebrating(false), 2000);
       }
 
       return { ...habit, streak: newStreak };
@@ -132,6 +127,13 @@ function App() {
 
   return (
     <div id="app">
+
+      {celebrating && (
+        <div className="celebration">
+          🎊 LEGEND STATUS! 🎊
+        </div>
+      )}
+
       <div id="header">
         <h1>🪞 Digital Mirror</h1>
         <p className="subtitle">Build habits. Grow your garden.</p>
