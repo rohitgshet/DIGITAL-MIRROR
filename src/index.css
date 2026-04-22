@@ -1,0 +1,231 @@
+:root {
+  --purple: #6c63ff;
+  --dark: #0f0f1a;
+  --card: #1e1e2e;
+  --green: #2ecc71;
+  --red: #e74c3c;
+  --gray: #aaaaaa;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--dark);
+  color: white;
+  font-family: sans-serif;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+/* Header */
+#header {
+  text-align: center;
+  padding: 30px 0 20px;
+}
+
+#header h1 {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: var(--gray);
+  font-size: 15px;
+}
+
+/* Garden */
+#garden {
+  margin-top: 24px;
+}
+
+#garden h2 {
+  font-size: 20px;
+  margin-bottom: 16px;
+  color: var(--green);
+}
+
+.empty {
+  color: var(--gray);
+  text-align: center;
+  padding: 20px;
+}
+
+/* Habit Card */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.habit-card {
+  background-color: var(--card);
+  padding: 16px;
+  margin: 10px 0;
+  border-radius: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.plant {
+  font-size: 32px;
+  transition: all 0.3s ease;
+}
+
+.habit-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.habit-name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.next-plant {
+  font-size: 12px;
+  color: var(--gray);
+}
+
+.streak {
+  font-size: 14px;
+  color: var(--gray);
+}
+
+/* Progress Bar */
+.progress-bar {
+  margin-top: 12px;
+  background-color: #2a2a3e;
+  border-radius: 999px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--purple));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* Buttons */
+.checkin-btn {
+  background-color: var(--green);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.checkin-btn:hover {
+  transform: scale(1.1);
+}
+
+.delete-btn {
+  background-color: transparent;
+  color: var(--gray);
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.delete-btn:hover {
+  color: var(--red);
+}
+
+/* Add Habit */
+#add-habit {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+}
+
+input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 2px solid #2a2a3e;
+  background-color: var(--card);
+  color: white;
+  font-size: 15px;
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+input:focus {
+  border-color: var(--purple);
+}
+
+.add-btn {
+  background-color: var(--purple);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.add-btn:hover {
+  transform: scale(1.05);
+}
+/* Score Card */
+#score-card {
+  background: linear-gradient(135deg, #1e1e2e, #2a2a4e);
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  margin: 24px 0;
+  border: 1px solid #3a3a5e;
+}
+
+.score-number {
+  font-size: 56px;
+  font-weight: bold;
+  background: linear-gradient(90deg, var(--green), var(--purple));
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.score-label {
+  font-size: 13px;
+  color: var(--gray);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.motivation {
+  margin-top: 12px;
+  font-size: 15px;
+  color: white;
+}
