@@ -14,10 +14,7 @@
 }
 
 body {
-  background-color: var(--dark);
-  color: white;
-  font-family: sans-serif;
-  padding: 20px;
+  background: radial-gradient(ellipse at top, #1a1a3e 0%, #0f0f1a 60%);
   min-height: 100vh;
 }
 
