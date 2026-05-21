@@ -9,5 +9,119 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <canvas id="cursor-canvas"></canvas>
+<script>
+  const canvas = document.getElementById('cursor-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.style.position = 'fixed';
+  canvas.style.top = '0';
+  canvas.style.left = '0';
+  canvas.style.pointerEvents = 'none';
+  canvas.style.zIndex = '9999';
+
+  let width = canvas.width = window.innerWidth;
+  let height = canvas.height = window.innerHeight;
+
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  });
+
+  let mouse = { x: -100, y: -100 };
+  let particles = [];
+  let pulse = 0;
+
+  window.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+    for (let i = 0; i < 3; i++) {
+      particles.push({
+        x: mouse.x,
+        y: mouse.y,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: (Math.random() - 0.5) * 1.5,
+        life: 1,
+        size: Math.random() * 2 + 1,
+      });
+    }
+  });
+
+  function drawCursor() {
+    pulse += 0.08;
+
+    // Pulsing outer ring
+    const outerRadius = 18 + Math.sin(pulse) * 5;
+    const innerRadius = 6 + Math.sin(pulse) * 2;
+    const opacity = 0.5 + Math.sin(pulse) * 0.3;
+
+    // Outer ring glow
+    ctx.beginPath();
+    ctx.arc(mouse.x, mouse.y, outerRadius, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(180, 77, 255, ${opacity})`;
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = '#b44dff';
+    ctx.shadowBlur = 15;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Middle ring
+    ctx.beginPath();
+    ctx.arc(mouse.x, mouse.y, outerRadius * 0.6, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(0, 212, 255, ${opacity * 0.6})`;
+    ctx.lineWidth = 1;
+    ctx.shadowColor = '#00d4ff';
+    ctx.shadowBlur = 10;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Inner dot
+    ctx.beginPath();
+    ctx.arc(mouse.x, mouse.y, innerRadius * 0.4, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+    ctx.shadowColor = '#ffffff';
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+
+    // Draw particles
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach((p, i) => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= 0.025;
+
+      const hue = 200 + Math.sin(pulse) * 60;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${hue}, 100%, 70%, ${p.life})`;
+      ctx.shadowColor = `hsl(${hue}, 100%, 70%)`;
+      ctx.shadowBlur = 8;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Lines between nearby particles
+      particles.slice(i + 1, i + 4).forEach(p2 => {
+        const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+        if (dist < 50) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.strokeStyle = `hsla(220, 100%, 70%, ${p.life * 0.3})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      });
+    });
+
+    drawCursor();
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+</script>
   </body>
 </html>
