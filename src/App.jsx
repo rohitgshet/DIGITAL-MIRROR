@@ -1,4 +1,14 @@
 import { useState, useEffect, useRef } from "react";
+import { auth, db } from "./firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import {
+  doc,
+  setDoc,
+  onSnapshot,
+  deleteDoc,
+  collection
+} from "firebase/firestore";
+import Login from "./Login";
 
 function getPlant(streak) {
   if (streak === 0) return "🪨";
@@ -73,57 +83,83 @@ function HabitCard({ id, name, streak, onCheckIn, onDelete }) {
 }
 
 function App() {
-  const [habits, setHabits] = useState(() => {
-    const saved = localStorage.getItem("habits");
-    return saved ? JSON.parse(saved) : [
-      { id: 1, name: "Drink Water", streak: 3 },
-      { id: 2, name: "Exercise", streak: 7 },
-      { id: 3, name: "Read", streak: 1 },
-    ];
-  });
-
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [habits, setHabits] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [celebrating, setCelebrating] = useState(false);
   const celebrated = useRef(new Set());
 
+  // Listen for login/logout
   useEffect(() => {
-    localStorage.setItem("habits", JSON.stringify(habits));
-  }, [habits]);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+    return unsubscribe;
+  }, []);
+
+  // Load habits from Firestore when user logs in
+  useEffect(() => {
+    if (!user) return;
+
+    const habitsRef = collection(db, "users", user.uid, "habits");
+    const unsubscribe = onSnapshot(habitsRef, (snapshot) => {
+      const loaded = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setHabits(loaded);
+    });
+
+    return unsubscribe;
+  }, [user]);
 
   const totalScore = habits.reduce((sum, habit) => sum + habit.streak, 0);
 
-  function checkIn(id) {
-    setHabits(habits.map((habit) => {
-      if (habit.id !== id) return habit;
-      const newStreak = habit.streak + 1;
+  async function checkIn(id) {
+    const habit = habits.find((h) => h.id === id);
+    if (!habit) return;
 
-      if (newStreak === 10 && !celebrated.current.has(id)) {
-        celebrated.current.add(id);
-        setCelebrating(true);
-        setTimeout(() => setCelebrating(false), 2000);
-      }
+    const newStreak = habit.streak + 1;
 
-      return { ...habit, streak: newStreak };
-    }));
+    if (newStreak === 10 && !celebrated.current.has(id)) {
+      celebrated.current.add(id);
+      setCelebrating(true);
+      setTimeout(() => setCelebrating(false), 2000);
+    }
+
+    const habitRef = doc(db, "users", user.uid, "habits", id);
+    await setDoc(habitRef, { ...habit, streak: newStreak });
   }
 
-  function deleteHabit(id) {
-    setHabits(habits.filter((habit) => habit.id !== id));
+  async function deleteHabit(id) {
+    const habitRef = doc(db, "users", user.uid, "habits", id);
+    await deleteDoc(habitRef);
   }
 
-  function addHabit() {
+  async function addHabit() {
     if (inputValue === "") {
       alert("Please type a habit first! 🌱");
       return;
     }
+
+    const newId = Date.now().toString();
     const newHabit = {
-      id: Date.now(),
       name: inputValue,
       streak: 0,
     };
-    setHabits([...habits, newHabit]);
+
+    const habitRef = doc(db, "users", user.uid, "habits", newId);
+    await setDoc(habitRef, newHabit);
     setInputValue("");
   }
+
+  // Show loading
+  if (loading) return <div className="loading">🌱 Loading...</div>;
+
+  // Show login if not logged in
+  if (!user) return <Login />;
 
   return (
     <div id="app">
@@ -137,6 +173,9 @@ function App() {
       <div id="header">
         <h1>🪞 Digital Mirror</h1>
         <p className="subtitle">Build habits. Grow your garden.</p>
+        <button className="logout-btn" onClick={() => signOut(auth)}>
+          Logout
+        </button>
       </div>
 
       <div id="score-card">
