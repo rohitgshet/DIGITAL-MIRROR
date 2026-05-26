@@ -15,6 +15,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  cursor: none;
 }
 
 body {
@@ -51,12 +52,19 @@ body {
   filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.5));
 }
 
-/* Header buttons */
+.subtitle {
+  color: var(--gray);
+  font-size: 15px;
+}
+
+/* Header Buttons */
 .header-buttons {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: center;
-  margin-top: 10px;
+  align-items: center;
+  margin-top: 12px;
+  flex-wrap: wrap;
 }
 
 .leaderboard-btn {
@@ -65,8 +73,8 @@ body {
   border: none;
   padding: 8px 16px;
   border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
+  font-size: 13px;
+  cursor: none;
   font-weight: bold;
   transition: transform 0.1s ease, box-shadow 0.2s ease;
 }
@@ -76,62 +84,57 @@ body {
   box-shadow: 0 0 16px rgba(241, 196, 15, 0.5);
 }
 
-/* Leaderboard */
-#leaderboard {
-  margin-top: 24px;
-}
-
-#leaderboard h2 {
-  font-size: 20px;
-  margin-bottom: 16px;
-  color: #f1c40f;
-  text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
-}
-
-.leaderboard-card {
-  background: linear-gradient(135deg, #0d0d1f, #12122a);
-  padding: 16px 20px;
-  margin: 10px 0;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  border: 1px solid rgba(124, 92, 252, 0.2);
-  animation: fadeIn 0.3s ease;
-  transition: box-shadow 0.3s ease;
-}
-
-.leaderboard-card:hover {
-  box-shadow: 0 0 20px rgba(241, 196, 15, 0.15);
-}
-
-.my-card {
-  border-color: #f1c40f !important;
-  box-shadow: 0 0 20px rgba(241, 196, 15, 0.25) !important;
-}
-
-.medal {
-  font-size: 24px;
-  min-width: 40px;
-  text-align: center;
-}
-
-.player-name {
-  flex: 1;
-  font-size: 16px;
+.admin-btn {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: none;
   font-weight: bold;
-  color: var(--text);
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
 }
 
-.player-score {
-  font-size: 14px;
-  color: #f1c40f;
-  font-weight: bold;
+.admin-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(231, 76, 60, 0.5);
 }
 
-.subtitle {
+.logout-btn {
+  background: linear-gradient(135deg, #1a1a2e, #2a2a4e);
   color: var(--gray);
-  font-size: 15px;
+  border: 1px solid rgba(124, 92, 252, 0.3);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: none;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  color: white;
+  border-color: var(--purple);
+  box-shadow: 0 0 10px rgba(124, 92, 252, 0.3);
+}
+
+.delete-account-btn {
+  background: transparent;
+  color: var(--red);
+  border: 1px solid rgba(255, 71, 87, 0.4);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: none;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.delete-account-btn:hover {
+  background: rgba(255, 71, 87, 0.1);
+  border-color: var(--red);
+  box-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
 }
 
 /* Garden */
@@ -158,11 +161,6 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes borderGlow {
-  0%, 100% { border-color: rgba(124, 92, 252, 0.3); }
-  50%       { border-color: rgba(0, 212, 255, 0.6); }
-}
-
 .habit-card {
   background: linear-gradient(135deg, #0d0d1f, #12122a);
   padding: 16px;
@@ -177,6 +175,11 @@ body {
 .habit-card:hover {
   box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
   border-color: rgba(0, 212, 255, 0.5);
+}
+
+.my-card {
+  border-color: #f1c40f !important;
+  box-shadow: 0 0 20px rgba(241, 196, 15, 0.25) !important;
 }
 
 .card-top {
@@ -231,7 +234,7 @@ body {
   box-shadow: 0 0 8px rgba(0, 212, 255, 0.6);
 }
 
-/* Buttons */
+/* Buttons on cards */
 .checkin-btn {
   background: linear-gradient(135deg, var(--neon-green), var(--neon-blue));
   color: #060612;
@@ -239,7 +242,7 @@ body {
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 16px;
-  cursor: pointer;
+  cursor: none;
   transition: transform 0.1s ease, box-shadow 0.2s ease;
   font-weight: bold;
 }
@@ -256,7 +259,7 @@ body {
   padding: 8px;
   border-radius: 8px;
   font-size: 16px;
-  cursor: pointer;
+  cursor: none;
   transition: color 0.2s ease;
 }
 
@@ -300,7 +303,7 @@ input::placeholder {
   padding: 12px 20px;
   border-radius: 10px;
   font-size: 15px;
-  cursor: pointer;
+  cursor: none;
   transition: transform 0.1s ease, box-shadow 0.2s ease;
   white-space: nowrap;
   font-weight: bold;
@@ -405,32 +408,13 @@ input::placeholder {
 
 .switch-link {
   color: var(--neon-blue);
-  cursor: pointer;
+  cursor: none;
   font-weight: bold;
 }
 
 .switch-link:hover {
   text-decoration: underline;
   text-shadow: 0 0 8px var(--neon-blue);
-}
-
-/* Logout button */
-.logout-btn {
-  background-color: transparent;
-  color: var(--gray);
-  border: 1px solid rgba(124, 92, 252, 0.3);
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: all 0.2s ease;
-}
-
-.logout-btn:hover {
-  color: var(--red);
-  border-color: var(--red);
-  box-shadow: 0 0 8px rgba(255, 71, 87, 0.3);
 }
 
 /* Loading */
@@ -467,4 +451,59 @@ input::placeholder {
   box-shadow:
     0 0 30px rgba(0, 212, 255, 0.5),
     0 0 60px rgba(124, 92, 252, 0.3);
+}
+
+/* Leaderboard */
+#leaderboard {
+  margin-top: 24px;
+}
+
+#leaderboard h2 {
+  font-size: 20px;
+  margin-bottom: 16px;
+  color: #f1c40f;
+  text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+}
+
+.leaderboard-card {
+  background: linear-gradient(135deg, #0d0d1f, #12122a);
+  padding: 16px 20px;
+  margin: 10px 0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid rgba(124, 92, 252, 0.2);
+  animation: fadeIn 0.3s ease;
+  transition: box-shadow 0.3s ease;
+}
+
+.leaderboard-card:hover {
+  box-shadow: 0 0 20px rgba(241, 196, 15, 0.15);
+}
+
+.medal {
+  font-size: 24px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.player-name {
+  flex: 1;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--text);
+}
+
+.player-score {
+  font-size: 14px;
+  color: #f1c40f;
+  font-weight: bold;
+}
+
+/* Cursor */
+@keyframes celebrate {
+  0%   { transform: translate(-50%, 0) scale(0); opacity: 0; }
+  50%  { transform: translate(-50%, 0) scale(1.1); opacity: 1; }
+  100% { transform: translate(-50%, 0) scale(1); opacity: 0; }
 }
