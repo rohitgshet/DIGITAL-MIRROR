@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { auth } from "./firebase";
+import { auth, db } from "./firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword
 } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState("");
 
@@ -15,7 +17,17 @@ function Login() {
     setError("");
     try {
       if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, email, password);
+        if (username.trim() === "") {
+          setError("Please enter a username!");
+          return;
+        }
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        // Save username to Firestore
+        await setDoc(doc(db, "users", result.user.uid), {
+          username: username.trim(),
+          score: 0,
+          email: email,
+        });
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
@@ -34,6 +46,15 @@ function Login() {
 
         {error && <p className="error">{error}</p>}
 
+        {isSignUp && (
+          <input
+            type="text"
+            placeholder="Username (shown on leaderboard)"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+        )}
+
         <input
           type="email"
           placeholder="Email"
@@ -42,7 +63,7 @@ function Login() {
         />
         <input
           type="password"
-          placeholder="Password"
+          placeholder="Password (min 6 characters)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -53,10 +74,7 @@ function Login() {
 
         <p className="switch-text">
           {isSignUp ? "Already have an account?" : "Don't have an account?"}
-          <span
-            className="switch-link"
-            onClick={() => setIsSignUp(!isSignUp)}
-          >
+          <span className="switch-link" onClick={() => setIsSignUp(!isSignUp)}>
             {isSignUp ? " Login" : " Sign Up"}
           </span>
         </p>

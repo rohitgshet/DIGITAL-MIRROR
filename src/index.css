@@ -51,6 +51,84 @@ body {
   filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.5));
 }
 
+/* Header buttons */
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.leaderboard-btn {
+  background: linear-gradient(135deg, #f1c40f, #e67e22);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.leaderboard-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 16px rgba(241, 196, 15, 0.5);
+}
+
+/* Leaderboard */
+#leaderboard {
+  margin-top: 24px;
+}
+
+#leaderboard h2 {
+  font-size: 20px;
+  margin-bottom: 16px;
+  color: #f1c40f;
+  text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+}
+
+.leaderboard-card {
+  background: linear-gradient(135deg, #0d0d1f, #12122a);
+  padding: 16px 20px;
+  margin: 10px 0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid rgba(124, 92, 252, 0.2);
+  animation: fadeIn 0.3s ease;
+  transition: box-shadow 0.3s ease;
+}
+
+.leaderboard-card:hover {
+  box-shadow: 0 0 20px rgba(241, 196, 15, 0.15);
+}
+
+.my-card {
+  border-color: #f1c40f !important;
+  box-shadow: 0 0 20px rgba(241, 196, 15, 0.25) !important;
+}
+
+.medal {
+  font-size: 24px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.player-name {
+  flex: 1;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--text);
+}
+
+.player-score {
+  font-size: 14px;
+  color: #f1c40f;
+  font-weight: bold;
+}
+
 .subtitle {
   color: var(--gray);
   font-size: 15px;

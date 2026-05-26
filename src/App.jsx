@@ -1,14 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { auth, db } from "./firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import {
-  doc,
-  setDoc,
-  onSnapshot,
-  deleteDoc,
-  collection
-} from "firebase/firestore";
+import { doc, setDoc, onSnapshot, deleteDoc, collection, updateDoc } from "firebase/firestore";
 import Login from "./Login";
+import Leaderboard from "./Leaderboard";
 
 function getPlant(streak) {
   if (streak === 0) return "🪨";
@@ -54,10 +49,7 @@ function HabitCard({ id, name, streak, onCheckIn, onDelete }) {
   return (
     <div className="habit-card">
       <div className="card-top">
-        <span
-          className="plant"
-          style={{ filter: `drop-shadow(${getGlow(streak)})` }}
-        >
+        <span className="plant" style={{ filter: `drop-shadow(${getGlow(streak)})` }}>
           {getPlant(streak)}
         </span>
         <div className="habit-info">
@@ -65,18 +57,11 @@ function HabitCard({ id, name, streak, onCheckIn, onDelete }) {
           <span className="next-plant">{getNextPlant(streak)}</span>
         </div>
         <span className="streak">🔥 {streak}</span>
-        <button className="checkin-btn" onClick={() => onCheckIn(id)}>
-          ✅
-        </button>
-        <button className="delete-btn" onClick={() => onDelete(id)}>
-          🗑️
-        </button>
+        <button className="checkin-btn" onClick={() => onCheckIn(id)}>✅</button>
+        <button className="delete-btn" onClick={() => onDelete(id)}>🗑️</button>
       </div>
       <div className="progress-bar">
-        <div
-          className="progress-fill"
-          style={{ width: `${getProgress(streak)}%` }}
-        />
+        <div className="progress-fill" style={{ width: `${getProgress(streak)}%` }} />
       </div>
     </div>
   );
@@ -88,9 +73,10 @@ function App() {
   const [habits, setHabits] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [celebrating, setCelebrating] = useState(false);
+  const [username, setUsername] = useState("");
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const celebrated = useRef(new Set());
 
-  // Listen for login/logout
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -99,10 +85,24 @@ function App() {
     return unsubscribe;
   }, []);
 
-  // Load habits from Firestore when user logs in
   useEffect(() => {
     if (!user) return;
+    const userRef = doc(db, "users", user.uid);
+    const unsubscribe = onSnapshot(userRef, (snap) => {
+      if (snap.exists()) setUsername(snap.data().username);
+    });
+    return unsubscribe;
+  }, [user]);
 
+  useEffect(() => {
+    if (!user || habits.length === 0) return;
+    const score = habits.reduce((sum, h) => sum + h.streak, 0);
+    const userRef = doc(db, "users", user.uid);
+    updateDoc(userRef, { score });
+  }, [habits]);
+
+  useEffect(() => {
+    if (!user) return;
     const habitsRef = collection(db, "users", user.uid, "habits");
     const unsubscribe = onSnapshot(habitsRef, (snapshot) => {
       const loaded = snapshot.docs.map((doc) => ({
@@ -111,7 +111,6 @@ function App() {
       }));
       setHabits(loaded);
     });
-
     return unsubscribe;
   }, [user]);
 
@@ -120,15 +119,12 @@ function App() {
   async function checkIn(id) {
     const habit = habits.find((h) => h.id === id);
     if (!habit) return;
-
     const newStreak = habit.streak + 1;
-
     if (newStreak === 10 && !celebrated.current.has(id)) {
       celebrated.current.add(id);
       setCelebrating(true);
       setTimeout(() => setCelebrating(false), 2000);
     }
-
     const habitRef = doc(db, "users", user.uid, "habits", id);
     await setDoc(habitRef, { ...habit, streak: newStreak });
   }
@@ -143,76 +139,80 @@ function App() {
       alert("Please type a habit first! 🌱");
       return;
     }
-
     const newId = Date.now().toString();
-    const newHabit = {
-      name: inputValue,
-      streak: 0,
-    };
-
     const habitRef = doc(db, "users", user.uid, "habits", newId);
-    await setDoc(habitRef, newHabit);
+    await setDoc(habitRef, { name: inputValue, streak: 0 });
     setInputValue("");
   }
 
-  // Show loading
   if (loading) return <div className="loading">🌱 Loading...</div>;
-
-  // Show login if not logged in
   if (!user) return <Login />;
 
   return (
     <div id="app">
 
       {celebrating && (
-        <div className="celebration">
-          🎊 LEGEND STATUS! 🎊
-        </div>
+        <div className="celebration">🎊 LEGEND STATUS! 🎊</div>
       )}
 
       <div id="header">
         <h1>🪞 Digital Mirror</h1>
-        <p className="subtitle">Build habits. Grow your garden.</p>
-        <button className="logout-btn" onClick={() => signOut(auth)}>
-          Logout
-        </button>
+        <p className="subtitle">Welcome, {username}! 👋</p>
+        <div className="header-buttons">
+          <button
+            className="leaderboard-btn"
+            onClick={() => setShowLeaderboard(!showLeaderboard)}
+          >
+            {showLeaderboard ? "🌱 My Garden" : "🏆 Leaderboard"}
+          </button>
+          <button className="logout-btn" onClick={() => signOut(auth)}>
+            Logout
+          </button>
+        </div>
       </div>
 
-      <div id="score-card">
-        <div className="score-number">{totalScore}</div>
-        <div className="score-label">Total Garden Score</div>
-        <div className="motivation">{getMotivation(totalScore)}</div>
-      </div>
+      {showLeaderboard ? (
+        <Leaderboard currentUserId={user.uid} />
+      ) : (
+        <>
+          <div id="score-card">
+            <div className="score-number">{totalScore}</div>
+            <div className="score-label">Total Garden Score</div>
+            <div className="motivation">{getMotivation(totalScore)}</div>
+          </div>
 
-      <div id="garden">
-        <h2>🌱 My Garden</h2>
-        {habits.length === 0 && (
-          <p className="empty">No habits yet. Add one below! 👇</p>
-        )}
-        {habits.map((habit) => (
-          <HabitCard
-            key={habit.id}
-            id={habit.id}
-            name={habit.name}
-            streak={habit.streak}
-            onCheckIn={checkIn}
-            onDelete={deleteHabit}
-          />
-        ))}
-      </div>
+          <div id="garden">
+            <h2>🌱 My Garden</h2>
+            {habits.length === 0 && (
+              <p className="empty">No habits yet. Add one below! 👇</p>
+            )}
+            {habits.map((habit) => (
+              <HabitCard
+                key={habit.id}
+                id={habit.id}
+                name={habit.name}
+                streak={habit.streak}
+                onCheckIn={checkIn}
+                onDelete={deleteHabit}
+              />
+            ))}
+          </div>
 
-      <div id="add-habit">
-        <input
-          type="text"
-          placeholder="e.g. Meditate 🧘"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && addHabit()}
-        />
-        <button className="add-btn" onClick={addHabit}>
-          Add Habit
-        </button>
-      </div>
+          <div id="add-habit">
+            <input
+              type="text"
+              placeholder="e.g. Meditate 🧘"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && addHabit()}
+            />
+            <button className="add-btn" onClick={addHabit}>
+              Add Habit
+            </button>
+          </div>
+        </>
+      )}
+
     </div>
   );
 }
