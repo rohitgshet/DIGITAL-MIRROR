@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { auth, db } from "./firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, setDoc, onSnapshot, deleteDoc, collection, updateDoc } from "firebase/firestore";
+import { doc, setDoc, onSnapshot, deleteDoc, collection, updateDoc, getDocs } from "firebase/firestore";
 import Login from "./Login";
 import Leaderboard from "./Leaderboard";
+import Admin from "./Admin";
 
 function getPlant(streak) {
   if (streak === 0) return "🪨";
@@ -49,7 +50,10 @@ function HabitCard({ id, name, streak, onCheckIn, onDelete }) {
   return (
     <div className="habit-card">
       <div className="card-top">
-        <span className="plant" style={{ filter: `drop-shadow(${getGlow(streak)})` }}>
+        <span
+          className="plant"
+          style={{ filter: `drop-shadow(${getGlow(streak)})` }}
+        >
           {getPlant(streak)}
         </span>
         <div className="habit-info">
@@ -61,14 +65,20 @@ function HabitCard({ id, name, streak, onCheckIn, onDelete }) {
         <button className="delete-btn" onClick={() => onDelete(id)}>🗑️</button>
       </div>
       <div className="progress-bar">
-        <div className="progress-fill" style={{ width: `${getProgress(streak)}%` }} />
+        <div
+          className="progress-fill"
+          style={{ width: `${getProgress(streak)}%` }}
+        />
       </div>
     </div>
   );
 }
 
+const ADMIN_UID = "5Xswlpej2mRchb7R4gtw3O9u9mV2";
+
 function App() {
   const [user, setUser] = useState(null);
+  const [showAdmin, setShowAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [habits, setHabits] = useState([]);
   const [inputValue, setInputValue] = useState("");
@@ -134,6 +144,25 @@ function App() {
     await deleteDoc(habitRef);
   }
 
+  async function deleteAccount() {
+    const confirm = window.confirm(
+      "Are you sure? This will permanently delete your account and all your habits! 🗑️"
+    );
+    if (!confirm) return;
+    try {
+      const habitsRef = collection(db, "users", user.uid, "habits");
+      const snapshot = await getDocs(habitsRef);
+      const deletePromises = snapshot.docs.map((d) =>
+        deleteDoc(doc(db, "users", user.uid, "habits", d.id))
+      );
+      await Promise.all(deletePromises);
+      await deleteDoc(doc(db, "users", user.uid));
+      await user.delete();
+    } catch (err) {
+      alert("Error deleting account. Please log out and log back in first, then try again.");
+    }
+  }
+
   async function addHabit() {
     if (inputValue === "") {
       alert("Please type a habit first! 🌱");
@@ -147,6 +176,9 @@ function App() {
 
   if (loading) return <div className="loading">🌱 Loading...</div>;
   if (!user) return <Login />;
+
+  // ✅ Show admin panel if admin clicks it
+  if (showAdmin) return <Admin user={user} onExit={() => setShowAdmin(false)} />;
 
   return (
     <div id="app">
@@ -165,8 +197,17 @@ function App() {
           >
             {showLeaderboard ? "🌱 My Garden" : "🏆 Leaderboard"}
           </button>
+          {/* ✅ Only shows for admin */}
+          {user.uid === ADMIN_UID && (
+            <button className="admin-btn" onClick={() => setShowAdmin(true)}>
+              🛡️ Admin
+            </button>
+          )}
           <button className="logout-btn" onClick={() => signOut(auth)}>
             Logout
+          </button>
+          <button className="delete-account-btn" onClick={deleteAccount}>
+            🗑️ Delete Account
           </button>
         </div>
       </div>
